@@ -1,0 +1,1 @@
+sudo jpnevulator --ascii --timing-print --tty /home/eglis/dev/mod2:SB57600d --read

@@ -1,0 +1,1 @@
+socat PTY,raw,echo=0 PTY,raw,echo=0
