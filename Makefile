@@ -6,8 +6,8 @@ obj-$(CONFIG_SLIP) += slip.o
 obj-$(CONFIG_SLHC) += slhc.o
 
 all:
-make -C /lib/modules/$(uname -r)/build M=$(pwd) modules
+	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
 
-#clean:
-#rm slip.ko slip.o slip.mod.o slip.mod.c;
+clean:
+	rm slip.ko slip.o slip.mod.o slip.mod.c;
 
