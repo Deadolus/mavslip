@@ -910,7 +910,7 @@ static int slip_esc(unsigned char *s, unsigned char *d, int len)
 	int length=len;
 	//uint8_t buf[6];
 
-
+     /* example message */
 	/*Received message from serial with ID #253 (sys:3|comp:1):
 Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 00 dd13
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 dd27
@@ -943,9 +943,7 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	 * For each byte in the packet, send the appropriate
 	 * character sequence, according to the SLIP protocol.
 	 */
-	//pad if not 48 len
 
-/*
 	while (len-- > 0) {
 		switch (c = *s++) {
 		case END:
@@ -961,16 +959,18 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 			break;
 		}
 	}
-*/
-	*ptr++='h';
+
+	/**ptr++='h';
 	*ptr++='a';
 	*ptr++='l';
 	*ptr++='l';
 	*ptr++='o';
-	length=5;
-	if(48-length>0)
+	length=5;*/
+
+	//pad if not 48 len
+	if(46-length>0)
 	{
-		int i=48-length;
+		int i=46-length;
 		while(i-->0)
 			*ptr++=END;
 	}
@@ -1341,7 +1341,6 @@ static int __init slip_init(void)
 
 	if (slip_maxdev < 4)
 		slip_maxdev = 4; /* Sanity */
-	printk(KERN_INFO "yeah slip");
 	printk(KERN_INFO "SLIP: version %s (dynamic channels, max=%d)"
 #ifdef CONFIG_SLIP_MODE_SLIP6
 	       " (6 bit encapsulation enabled)"
