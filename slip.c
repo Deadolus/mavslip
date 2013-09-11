@@ -908,7 +908,7 @@ static int slip_esc(unsigned char *s, unsigned char *d, int len)
 	unsigned char *ptr = d;
 	unsigned char c;
 	uint16_t checksum;
-	int length=len;
+	unsigned char *ptr_l = d; //last pointer
 	//uint8_t buf[6];
 
      /* example message */
@@ -968,17 +968,19 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	*ptr++='l';
 	*ptr++='o';
 	length=5;*/
-
+	*ptr++ = END;
 	//pad if not 48 len
-	if(92-length>0) //length-4
+	if(96-(ptr-d-6)>0) //length-4
 	{
-		int i=92-length;
+		int i=96-(ptr-d-6);
 		while(i-->0)
 			*ptr++=END;
 	}
+	else if(96-(ptr-d-6)<0) //we actually tried to transmit more than 96 bytes
+		printk(KERN_WARNING "SLIP: Tried to transmit more than alloted 96 bytes");
 
 
-	*ptr++ = END;
+
 	checksum=crc_calculate(ptr-101,101);//length+5
 	//crc_accumulate_buffer(&checksum, ptr-length, length);
 	crc_accumulate(153, &checksum); //crcextra

@@ -1,1 +1,1 @@
-socat PTY,raw,echo=0 PTY,raw,echo=0
+socat PTY,raw,echo=0,link=/home/eglis/dev/mod1 PTY,raw,echo=0,link=/home/eglis/dev/mod2
