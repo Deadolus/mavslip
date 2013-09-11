@@ -22,6 +22,7 @@
 #ifndef _LINUX_SLIP_H
 #define _LINUX_SLIP_H
 
+#define SL_INCLUDE_CSLIP
 
 #if defined(CONFIG_INET) && defined(CONFIG_SLIP_COMPRESSED)
 # define SL_INCLUDE_CSLIP
@@ -37,7 +38,7 @@
 #define SL_NRUNIT	256		/* MAX number of SLIP channels;
 					   This can be overridden with
 					   insmod -oslip_maxdev=nnn	*/
-#define SL_MTU		48		/* 296; I am used to 600- FvK	*/
+#define SL_MTU		96		/* 296; I am used to 600- FvK	*/
 
 /* SLIP protocol characters. */
 #define END             0300		/* indicates end of frame	*/

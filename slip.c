@@ -92,7 +92,8 @@
 #include <net/slhc_vj.h>
 #endif
 
-#define SLIP_VERSION	"0.8.4-NET3.019-NEWTTY"
+#define SLIP_VERSION	"0.8.4-NET3.019-NEWTTY-SWARMIX"
+#define SL_INCLUDE_CSLIP
 
 static struct net_device **slip_devs;
 
@@ -918,15 +919,15 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	/* start by sending header for mavlink packet */
 	*ptr++ = 254;//buf[0] = 254;
 
-	*ptr++ = 51; //TODO: working with variable length (not 51)?
-	*ptr++ = 1;
-	*ptr++ = 3;
-	*ptr++ = 4;
-	*ptr++ = 253;
+	*ptr++ = 96; //length //TODO: working with variable length (not 51)?
+	*ptr++ = 1; //seq last
+	*ptr++ = 3; //sysid
+	*ptr++ = 4; //compid
+	*ptr++ = 201;//msgid
 	//checksum = crc_calculate(ptr-5, 5);
 
 	//*ptr++ = len+2;
-	*ptr++ = 4; //severity
+	//*ptr++ = 1; //seq
 
 	/*now mavlink "packet" (MTU=48 [start and end ]!)) */
 
@@ -944,6 +945,7 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	 * character sequence, according to the SLIP protocol.
 	 */
 
+	//printk(KERN_INFO "SLIP: length: %d", len);
 	while (len-- > 0) {
 		switch (c = *s++) {
 		case END:
@@ -968,18 +970,18 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	length=5;*/
 
 	//pad if not 48 len
-	if(46-length>0)
+	if(92-length>0) //length-4
 	{
-		int i=46-length;
+		int i=92-length;
 		while(i-->0)
 			*ptr++=END;
 	}
 
 
 	*ptr++ = END;
-	checksum=crc_calculate(ptr-56,56);
+	checksum=crc_calculate(ptr-101,101);//length+5
 	//crc_accumulate_buffer(&checksum, ptr-length, length);
-	crc_accumulate(83, &checksum);
+	crc_accumulate(153, &checksum); //crcextra
 	/* send chksum */
 
 		*ptr++ = (uint8_t)(checksum & 0xFF);

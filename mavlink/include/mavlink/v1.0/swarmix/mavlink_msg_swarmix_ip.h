@@ -4,21 +4,21 @@
 
 typedef struct __mavlink_swarmix_ip_t
 {
- uint8_t payload[255]; ///< uint8_t
+ uint8_t payload[96]; ///< uint8_t
 } mavlink_swarmix_ip_t;
 
-#define MAVLINK_MSG_ID_SWARMIX_IP_LEN 255
-#define MAVLINK_MSG_ID_201_LEN 255
+#define MAVLINK_MSG_ID_SWARMIX_IP_LEN 96
+#define MAVLINK_MSG_ID_201_LEN 96
 
-#define MAVLINK_MSG_ID_SWARMIX_IP_CRC 139
-#define MAVLINK_MSG_ID_201_CRC 139
+#define MAVLINK_MSG_ID_SWARMIX_IP_CRC 153
+#define MAVLINK_MSG_ID_201_CRC 153
 
-#define MAVLINK_MSG_SWARMIX_IP_FIELD_PAYLOAD_LEN 255
+#define MAVLINK_MSG_SWARMIX_IP_FIELD_PAYLOAD_LEN 96
 
 #define MAVLINK_MESSAGE_INFO_SWARMIX_IP { \
 	"SWARMIX_IP", \
 	1, \
-	{  { "payload", NULL, MAVLINK_TYPE_UINT8_T, 255, 0, offsetof(mavlink_swarmix_ip_t, payload) }, \
+	{  { "payload", NULL, MAVLINK_TYPE_UINT8_T, 96, 0, offsetof(mavlink_swarmix_ip_t, payload) }, \
          } \
 }
 
@@ -38,12 +38,12 @@ static inline uint16_t mavlink_msg_swarmix_ip_pack(uint8_t system_id, uint8_t co
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[MAVLINK_MSG_ID_SWARMIX_IP_LEN];
 
-	_mav_put_uint8_t_array(buf, 0, payload, 255);
+	_mav_put_uint8_t_array(buf, 0, payload, 96);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_SWARMIX_IP_LEN);
 #else
 	mavlink_swarmix_ip_t packet;
 
-	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*255);
+	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*96);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_SWARMIX_IP_LEN);
 #endif
 
@@ -71,12 +71,12 @@ static inline uint16_t mavlink_msg_swarmix_ip_pack_chan(uint8_t system_id, uint8
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[MAVLINK_MSG_ID_SWARMIX_IP_LEN];
 
-	_mav_put_uint8_t_array(buf, 0, payload, 255);
+	_mav_put_uint8_t_array(buf, 0, payload, 96);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_SWARMIX_IP_LEN);
 #else
 	mavlink_swarmix_ip_t packet;
 
-	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*255);
+	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*96);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_SWARMIX_IP_LEN);
 #endif
 
@@ -128,7 +128,7 @@ static inline void mavlink_msg_swarmix_ip_send(mavlink_channel_t chan, const uin
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[MAVLINK_MSG_ID_SWARMIX_IP_LEN];
 
-	_mav_put_uint8_t_array(buf, 0, payload, 255);
+	_mav_put_uint8_t_array(buf, 0, payload, 96);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_SWARMIX_IP, buf, MAVLINK_MSG_ID_SWARMIX_IP_LEN, MAVLINK_MSG_ID_SWARMIX_IP_CRC);
 #else
@@ -137,7 +137,7 @@ static inline void mavlink_msg_swarmix_ip_send(mavlink_channel_t chan, const uin
 #else
 	mavlink_swarmix_ip_t packet;
 
-	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*255);
+	mav_array_memcpy(packet.payload, payload, sizeof(uint8_t)*96);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_SWARMIX_IP, (const char *)&packet, MAVLINK_MSG_ID_SWARMIX_IP_LEN, MAVLINK_MSG_ID_SWARMIX_IP_CRC);
 #else
@@ -158,7 +158,7 @@ static inline void mavlink_msg_swarmix_ip_send(mavlink_channel_t chan, const uin
  */
 static inline uint16_t mavlink_msg_swarmix_ip_get_payload(const mavlink_message_t* msg, uint8_t *payload)
 {
-	return _MAV_RETURN_uint8_t_array(msg, payload, 255,  0);
+	return _MAV_RETURN_uint8_t_array(msg, payload, 96,  0);
 }
 
 /**
