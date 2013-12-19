@@ -83,10 +83,14 @@ struct slip {
 #define SLF_OUTWAIT	4		/* is outpacket was flag	*/
 
 #define MAV_STX 254
-#define MAV_LEN 96 /* length of datafield */
-#define MAV_SYSID 100
-#define MAV_COMPID 101
-#define MAV_MSGID 201
+//#define MAV_LEN 96 /* length of Swarmix datafield */
+#define MAV_LEN 50 /* length of Statustext datafield */
+#define MAV_SYSID 100 /* this Sysid */
+#define MAV_COMPID 101 /* this compid */
+//#define MAV_MSGID 201 //use custom Swarmix message
+#define MAV_MSGID 253  //use Statustext message
+//#define MAV_CRC 153 /* the Swarmix message CRC Checksum */
+#define MAV_CRC 53 /* the statustext CRC */
 
 #define MAV_GOT_NONE 0
 #define MAV_GOT_STX 1
