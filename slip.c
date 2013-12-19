@@ -908,7 +908,8 @@ static int slip_esc(unsigned char *s, unsigned char *d, int len)
 	unsigned char *ptr = d;
 	unsigned char c;
 	uint16_t checksum;
-	unsigned char *ptr_l = d; //last pointer
+	unsigned char *ptr_l=d; //last pointer
+	int i;
 	//uint8_t buf[6];
 
      /* example message */
@@ -917,13 +918,7 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 dd27
 00 00 00 00 00 00 00 00 00 00 e8 60  dd10 */
 	/* start by sending header for mavlink packet */
-	*ptr++ = 254;//buf[0] = 254;
 
-	*ptr++ = 96; //length //TODO: working with variable length (not 51)?
-	*ptr++ = 1; //seq last
-	*ptr++ = 3; //sysid
-	*ptr++ = 4; //compid
-	*ptr++ = 201;//msgid
 	//checksum = crc_calculate(ptr-5, 5);
 
 	//*ptr++ = len+2;
@@ -938,7 +933,7 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 	 * due to line noise.
 	 */
 
-	*ptr++ = END;
+
 
 	/*
 	 * For each byte in the packet, send the appropriate
@@ -947,6 +942,20 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 
 	//printk(KERN_INFO "SLIP: length: %d", len);
 	while (len-- > 0) {
+		/*transmit new mavlink packet
+		 *
+		 */
+		if(ptr-ptr_l==0){
+		/* add mavlink header */
+		*ptr++ = MAV_STX;//buf[0] = 254;
+		*ptr++ = MAV_LEN; //length //TODO: working with variable length (not 51)?
+		*ptr++ = 1; //seq last
+		*ptr++ = MAV_SYSID; //sysid
+		*ptr++ = MAV_COMPID; //compid
+		*ptr++ = MAV_MSGID;//msgid
+		//*ptr++ = END; //first message byte
+}
+
 		switch (c = *s++) {
 		case END:
 			*ptr++ = ESC;
@@ -962,33 +971,60 @@ Received serial data: fe 33 08 03 01 fd 01 47 52 4f 55 4e 44 20 53 54 41 52 54 0
 		}
 	}
 
-	/**ptr++='h';
-	*ptr++='a';
-	*ptr++='l';
-	*ptr++='l';
-	*ptr++='o';
-	length=5;*/
-	*ptr++ = END;
-	//pad if not 48 len
-	if(96-(ptr-d-6)>0) //length-4
+
+		default:
+			break;
+		}
+/* if there's only one or two byte left */
+if(ptr-ptr_l-6>=96)
+{
+	int offset=ptr-ptr_l-6-96;
+
+	ptr-=offset; //move ptr back to the right position
+	/*move bytes which are too much*/
+	//for(i=0;i<offset;i++)
+	//	*(ptr-offset+8+i)=*(ptr-offset+1+i);
+	//checksum=crc_calculate(ptr_l+1,(uint16_t)(ptr_l+5+96));//length
+	crc_accumulate(153, &checksum); //crcextra
+
+	*(ptr_l++ +5+96)=(uint8_t)(checksum & 0xFF);
+	*(ptr_l++ +5+97)=(uint8_t)(checksum >> 8);
+	//ptr-offset+
+	*ptr++ = MAV_STX;//buf[0] = 254;
+	*ptr++ = MAV_LEN; //length //TODO: working with variable length (not 51)?
+	*ptr++ = 1; //seq last
+	*ptr++ = MAV_SYSID; //sysid
+	*ptr++ = MAV_COMPID; //compid
+	*ptr++ = MAV_MSGID;//msgid
+
+
+		*ptr++ =
+		*ptr++ = (uint8_t)(checksum >> 8);
+		ptr_l=ptr;
+	}
+
+
+
+if(ptr-ptr_l!=0){
+	//*ptr++ = END;	//pad if not 48 len
+	if(96-(ptr-ptr_l-6)>0) //length
 	{
-		int i=96-(ptr-d-6);
+		int i=96-(ptr-ptr_l-6);
 		while(i-->0)
 			*ptr++=END;
 	}
-	else if(96-(ptr-d-6)<0) //we actually tried to transmit more than 96 bytes
-		printk(KERN_WARNING "SLIP: Tried to transmit more than alloted 96 bytes");
+	/*else if(96-(ptr-d-6)<0) //we actually tried to transmit more than 96 bytes
+		printk(KERN_WARNING "SLIP: Tried to transmit more than alloted 96 bytes");*/
 
 
 
-	checksum=crc_calculate(ptr-101,101);//length+5
-	//crc_accumulate_buffer(&checksum, ptr-length, length);
+	checksum=crc_calculate(ptr_l+1,(uint16_t)(ptr-ptr_l-1));//length
 	crc_accumulate(153, &checksum); //crcextra
 	/* send chksum */
 
 		*ptr++ = (uint8_t)(checksum & 0xFF);
 		*ptr++ = (uint8_t)(checksum >> 8);
-
+}
 	return ptr - d;
 }
 
@@ -996,7 +1032,7 @@ static void slip_unesc(struct slip *sl, unsigned char s)
 {
 	//TODO: add mavlink encapsulation
 
-
+	static int status=MAV_GOT_NONE;
 	switch (s) {
 	case END:
 #ifdef CONFIG_SLIP_SMART
@@ -1023,6 +1059,41 @@ static void slip_unesc(struct slip *sl, unsigned char s)
 		if (test_and_clear_bit(SLF_ESCAPE, &sl->flags))
 			s = END;
 		break;
+	case MAV_STX:
+		status = MAV_GOT_STX;
+		break;
+	case MAV_LEN:
+		if(status==MAV_GOT_STX)
+			status = MAV_GOT_LEN;
+		else
+			status = MAV_GOT_NONE;
+		break;
+	case 1:
+		if(status==MAV_GOT_LEN)
+			status = MAV_GOT_SEQ;
+		else
+			status = MAV_GOT_NONE;
+		break;
+	case MAV_SYSID:
+		if(status==MAV_GOT_SEQ)
+			status = MAV_GOT_SYSID;
+		else
+			status = MAV_GOT_NONE;
+		break;
+	case MAV_COMPID:
+		if(status==MAV_GOT_SYSID)
+			status = MAV_GOT_COMPID;
+		else
+			status = MAV_GOT_NONE;
+		break;
+	case MAV_MSGID:
+		if(status==MAV_GOT_COMPID)
+			status = MAV_GOT_MSGID;
+		else
+			status = MAV_GOT_NONE;
+		break;
+
+
 	}
 	if (!test_bit(SLF_ERROR, &sl->flags))  {
 		if (sl->rcount < sl->buffsize)  {

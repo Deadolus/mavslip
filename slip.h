@@ -38,7 +38,7 @@
 #define SL_NRUNIT	256		/* MAX number of SLIP channels;
 					   This can be overridden with
 					   insmod -oslip_maxdev=nnn	*/
-#define SL_MTU		90		/* 296; I am used to 600- FvK	*/
+#define SL_MTU		96		/* 296; I am used to 600- FvK	*/
 /* max 96, so we have some space for escape characters (attention, may be buggy!) */
 //TODO: fix buggy
 
@@ -81,6 +81,21 @@ struct slip {
 #define SLF_ERROR	2               /* Parity, etc. error           */
 #define SLF_KEEPTEST	3		/* Keepalive test flag		*/
 #define SLF_OUTWAIT	4		/* is outpacket was flag	*/
+
+#define MAV_STX 254
+#define MAV_LEN 96 /* length of datafield */
+#define MAV_SYSID 100
+#define MAV_COMPID 101
+#define MAV_MSGID 201
+
+#define MAV_GOT_NONE 0
+#define MAV_GOT_STX 1
+#define MAV_GOT_LEN 2
+#define MAV_GOT_SEQ 3
+#define MAV_GOT_SYSID 4
+#define MAV_GOT_COMPID 5
+#define MAV_GOT_MSGID 6
+#define MAV_GOT_ESC 7
 
   unsigned char		mode;		/* SLIP mode			*/
   unsigned char		leased;
